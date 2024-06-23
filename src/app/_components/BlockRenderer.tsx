@@ -1,24 +1,21 @@
-'use client';
+"use client";
 
 import { useCounterState } from "~/hooks/useCounterState";
-import { Block } from "./Block";
-import { AnimatePresence } from "framer-motion";
+import { RangeRenderer } from "./RangeRenderer";
 
-interface BlockRendererProps {
-}
+interface BlockRendererProps {}
 
-export const BlockRenderer = ({ }: BlockRendererProps) => {
+export const BlockRenderer = ({}: BlockRendererProps) => {
   const [counterState, _] = useCounterState();
 
   return (
-    <AnimatePresence mode="wait">
-      <div className="flex flex-wrap-reverse flex-row-reverse justify-start py-60 gap-4 w-[80vw]">
-        {
-          Array.from({ length: counterState.blockCount }).map((_, index) => (
-            <Block key={`${index}-${counterState.currentIndexes[index]}`} blockIndex={index} />
-          ))
-        }
-      </div>
-    </AnimatePresence>
-  )
-}
+    <div className="absolute top-1/2 flex w-[80vw] flex-row-reverse justify-center gap-4">
+      {Array.from({ length: counterState.blockCount }).map((_, index) => (
+        <RangeRenderer
+          key={`${index}-${counterState.currentIndexes[index]}`}
+          rangeIndex={index}
+        />
+      ))}
+    </div>
+  );
+};

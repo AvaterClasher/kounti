@@ -7,7 +7,7 @@ import {
   useState,
   useEffect,
 } from "react";
-import { BlockType } from "~/app/_components/Block";
+import type { BlockType } from "~/app/_components/Block";
 
 type Theme = "light" | "dark";
 
@@ -36,7 +36,7 @@ const CounterStateContext = createContext<CounterStateContextType | null>(null);
 export const CounterStateProvider = ({ children }: { children: ReactNode }) => {
   const [state, setState] = useState<CounterState>({
     blockType: "binary",
-    currentIndexes: [0,0,0],
+    currentIndexes: [0, 0, 0],
     blockCount: 3,
     range: [0, 1],
     theme: "dark",
@@ -79,7 +79,7 @@ export const CounterStateProvider = ({ children }: { children: ReactNode }) => {
 
   function clearIndexes() {
     const rangeMin = state.range[0]!;
-    let newIndexes = Array.from<number>({ length: state.blockCount }).fill(
+    const newIndexes = Array.from<number>({ length: state.blockCount }).fill(
       rangeMin,
     );
     updateState({ currentIndexes: newIndexes });
@@ -89,7 +89,7 @@ export const CounterStateProvider = ({ children }: { children: ReactNode }) => {
     let mode: Theme = window.matchMedia("(prefers-color-scheme: dark)").matches
       ? "dark"
       : "light";
-    let localTheme = localStorage.getItem("theme") as Theme;
+    const localTheme = localStorage.getItem("theme") as Theme;
     if (localTheme && (localTheme === "light" || localTheme === "dark")) {
       mode = localTheme;
     }

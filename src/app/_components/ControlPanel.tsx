@@ -8,26 +8,41 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
+import {
+  Plus,
+  Minus,
+  RotateCcw,
+  PackagePlus,
+  PackageMinus,
+  Sun,
+  Moon,
+} from "lucide-react";
+import useSound from "use-sound";
 import Link from "next/link";
+import { useIsMobile } from "~/hooks/useIsMobile";
 
-const blockTypes: Record<BlockType, string> = {
-  binary: "binary",
-  octal: "octal",
-  decimal: "decimal",
-  hexadecimal: "hexadecimal",
-};
+const CLICK_SOUND_CHANCE = 0.5;
+const MAX_BLOCK_MOBILE = 4;
+const MAX_BLOCK_DESKTOP = 12;
 
 const blockDescriptions: Record<BlockType, string> = {
   binary: "Binary is a base-2 number system that uses two symbols: 0 and 1.",
-  octal: "Octal is a base-8 number system that uses eight symbols: 0-7.",
-  decimal: "Decimal is a base-10 number system that uses ten symbols: 0-9.",
+  octal: "Octal is a base-8 number system that uses eight symbols: 0-7",
+  decimal: "Decimal is a base-10 number system that uses ten symbols: 0-9",
   hexadecimal:
-    "Hexadecimal is a base-16 number system that uses sixteen symbols: 0-9, A-F.",
+    "Hexadecimal is a base-16 number system that uses sixteen symbols: 0-9, A-F",
 };
 
 export const ControlPanel = () => {
   const [counterState, setCounterState, { clearIndexes, setTheme }] =
     useCounterState();
+  const isMobile = useIsMobile();
+  const [play] = useSound("/sound.mp3", {
+    sprite: {
+      t1: [48, 76],
+      t2: [215, 239],
+    },
+  });
 
   function handleAdd() {
     const currentIndexes = counterState.currentIndexes;
@@ -50,6 +65,7 @@ export const ControlPanel = () => {
           break adder;
       }
     }
+    play({ id: Math.random() > CLICK_SOUND_CHANCE ? "t1" : "t2" });
     setCounterState({ currentIndexes: currentIndexes });
   }
 
@@ -74,166 +90,178 @@ export const ControlPanel = () => {
           break subtract;
       }
     }
+    play({ id: Math.random() > 0.5 ? "t1" : "t2" });
     setCounterState({ currentIndexes: currentIndexes });
   }
 
   function handleBlockAdd() {
+    console.log(
+      `blockCount: ${counterState.blockCount} | isMobile: ${isMobile}`,
+    );
+    if (isMobile && counterState.blockCount >= MAX_BLOCK_MOBILE) return;
+    if (!isMobile && counterState.blockCount >= MAX_BLOCK_DESKTOP) return;
     setCounterState({
       blockCount: counterState.blockCount + 1,
       currentIndexes: [...counterState.currentIndexes, 0],
     });
   }
   function handleBlockSubtract() {
+    if (counterState.blockCount <= 1) return;
     setCounterState({
       blockCount: counterState.blockCount - 1,
       currentIndexes: counterState.currentIndexes.slice(0, -1),
     });
   }
-  function handleBlockTypeChange(type: BlockType) {
-    setCounterState({ blockType: type });
-    clearIndexes();
+
+  function switchBlockType() {
+    setCounterState({
+      currentIndexes: Array.from({ length: counterState.blockCount }, () => 0),
+    });
+    switch (counterState.blockType) {
+      case "binary":
+        setCounterState({ blockType: "octal" });
+        break;
+      case "octal":
+        setCounterState({ blockType: "decimal" });
+        break;
+      case "decimal":
+        setCounterState({ blockType: "hexadecimal" });
+        break;
+      case "hexadecimal":
+        setCounterState({ blockType: "binary" });
+        break;
+    }
+  }
+
+  function switchTheme() {
+    switch (counterState.theme) {
+      case "light":
+        setTheme("dark");
+        break;
+      case "dark":
+        setTheme("light");
+        break;
+    }
   }
 
   return (
     <div className="fixed bottom-5 left-1/2 z-10 flex w-[90vw] -translate-x-1/2 select-none flex-col items-start justify-center gap-6 rounded-lg p-8 font-normal text-gray-600 drop-shadow-lg backdrop-blur-[20px] dark:text-gray-400 lg:flex-row lg:items-center">
-      <span className="font-semibold text-black dark:text-white lg:hidden">
-        crafted by{" "}
-        <Link
-          target="_blank"
-          className="underline"
-          href={"https://soumyadipmoni.vercel.app"}
-        >
-          Soumyadip Moni
-        </Link>{" "}
-        🤖
-      </span>
-      <span className="text-4xl font-semibold text-black dark:text-white">
-        kounti.
-      </span>
-      <div className="flex flex-row gap-4 lg:flex-col">
-        {Object.values(blockTypes).map((blockType) => (
-          <TooltipProvider key={`btn-${blockType}`}>
+      <div className="flex w-full flex-row justify-between gap-4 lg:w-fit lg:justify-normal">
+        <span className="text-4xl font-semibold text-black dark:text-white">
+          kounti.
+        </span>
+        <TooltipProvider key={`btn-blockType`}>
+          <Tooltip>
+            <TooltipTrigger
+              className="cursor-pointer duration-200 hover:text-gray-700 dark:hover:text-gray-200"
+              onClick={switchBlockType}
+            >
+              {counterState.blockType}
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{blockDescriptions[counterState.blockType]}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+      <div className="flex flex-row gap-6 text-sm lg:text-base">
+        <div className="flex flex-row gap-4">
+          <TooltipProvider key={`btn-add`}>
             <Tooltip>
               <TooltipTrigger
-                className="cursor-pointer duration-200 hover:text-gray-700 dark:hover:text-gray-200"
-                onClick={() => handleBlockTypeChange(blockType as BlockType)}
+                className="cursor-pointer p-2 duration-200 hover:text-gray-700 dark:hover:text-gray-200"
+                onClick={handleAdd}
               >
-                {blockType}
+                <Plus className="h-4 w-4 lg:h-6 lg:w-6" />
               </TooltipTrigger>
               <TooltipContent>
-                <p>{blockDescriptions[blockType as BlockType]}</p>
+                <p>increment the counter.</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-        ))}
-      </div>
-      <div className="flex flex-row gap-4 lg:flex-col">
-        <TooltipProvider key={`btn-add`}>
+          <TooltipProvider key={`btn-subtract`}>
+            <Tooltip>
+              <TooltipTrigger
+                className="cursor-pointer p-2 duration-200 hover:text-gray-700 dark:hover:text-gray-200"
+                onClick={handleSubtract}
+              >
+                <Minus className="h-4 w-4 lg:h-6 lg:w-6" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>decrement the counter.</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+        <div className="flex flex-row gap-4">
+          <TooltipProvider key={`btn-block-add`}>
+            <Tooltip>
+              <TooltipTrigger
+                className="cursor-pointer p-2 duration-200 hover:text-gray-700 dark:hover:text-gray-200"
+                onClick={handleBlockAdd}
+              >
+                <PackagePlus className="h-4 w-4 lg:h-6 lg:w-6" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>add a block.</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <TooltipProvider key={`btn-block-subtract`}>
+            <Tooltip>
+              <TooltipTrigger
+                className="cursor-pointer p-2 duration-200 hover:text-gray-700 dark:hover:text-gray-200"
+                onClick={handleBlockSubtract}
+              >
+                <PackageMinus className="h-4 w-4 lg:h-6 lg:w-6" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>remove a block.</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+        <TooltipProvider key={`btn-reset`}>
           <Tooltip>
             <TooltipTrigger
-              className="cursor-pointer duration-200 hover:text-gray-700 dark:hover:text-gray-200"
-              onClick={handleAdd}
+              className="cursor-pointer p-2 duration-200 hover:text-gray-700 dark:hover:text-gray-200"
+              onClick={clearIndexes}
             >
-              add +
+              <RotateCcw className="h-4 w-4 lg:h-6 lg:w-6" />
             </TooltipTrigger>
             <TooltipContent>
-              <p>Increment the counter.</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        <TooltipProvider key={`btn-subtract`}>
-          <Tooltip>
-            <TooltipTrigger
-              className="cursor-pointer duration-200 hover:text-gray-700 dark:hover:text-gray-200"
-              onClick={handleSubtract}
-            >
-              subtract -
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Decrement the counter.</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </div>
-      <div className="flex flex-row gap-4 lg:flex-col">
-        <TooltipProvider key={`btn-block-add`}>
-          <Tooltip>
-            <TooltipTrigger
-              className="cursor-pointer duration-200 hover:text-gray-700 dark:hover:text-gray-200"
-              onClick={handleBlockAdd}
-            >
-              block add +
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Add a block.</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        <TooltipProvider key={`btn-block-subtract`}>
-          <Tooltip>
-            <TooltipTrigger
-              className="cursor-pointer duration-200 hover:text-gray-700 dark:hover:text-gray-200"
-              onClick={handleBlockSubtract}
-            >
-              block subtract -
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Remove a block.</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </div>
-      <TooltipProvider key={`btn-reset`}>
-        <Tooltip>
-          <TooltipTrigger
-            className="cursor-pointer duration-200 hover:text-gray-700 dark:hover:text-gray-200"
-            onClick={clearIndexes}
-          >
-            reset
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Reset the counter.</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-      <ul className="flex list-none flex-row gap-4 lg:flex-col">
-        <TooltipProvider key={`btn-light`}>
-          <Tooltip>
-            <TooltipTrigger
-              className="cursor-pointer duration-200 hover:text-gray-700 dark:hover:text-gray-200"
-              onClick={() => setTheme("light")}
-            >
-              light
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Light Theme.</p>
+              <p>reset the counter.</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
         <TooltipProvider key={`btn-light`}>
           <Tooltip>
             <TooltipTrigger
-              className="cursor-pointer duration-200 hover:text-gray-700 dark:hover:text-gray-200"
-              onClick={() => setTheme("dark")}
+              className="cursor-pointer p-2 duration-200 hover:text-gray-700 dark:hover:text-gray-200"
+              onClick={() => switchTheme()}
             >
-              dark
+              {counterState.theme === "light" ? (
+                <Sun className="h-4 w-4 lg:h-6 lg:w-6" />
+              ) : (
+                <Moon className="h-4 w-4 lg:h-6 lg:w-6" />
+              )}
             </TooltipTrigger>
             <TooltipContent>
-              <p>Dark Theme.</p>
+              <p>{counterState.theme} theme.</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
-      </ul>
-      <span className="hidden font-semibold text-black dark:text-white lg:block">
+      </div>
+      <span className="font-normal text-black dark:text-white">
         crafted by{" "}
         <Link
           target="_blank"
           className="underline"
           href={"https://soumyadipmoni.vercel.app"}
         >
-          Soumyadip Moni
+          soumyadip moni
         </Link>{" "}
-        🤖
+        ✨
       </span>
     </div>
   );

@@ -1,18 +1,18 @@
-import { type Config } from 'tailwindcss';
+import { type Config } from "tailwindcss";
 
 export default {
-  content: ['./src/**/*.tsx'],
-  darkMode: 'class',
+  content: ["./src/**/*.tsx"],
+  darkMode: "class",
   theme: {
     extend: {
       transitionProperty: {
-        height: 'height',
-        width: 'width',
-        spacing: 'margin, padding',
-        opacity: 'opacity',
-        shadow: 'box-shadow',
-        transform: 'transform',
-        translate: 'translateY',
+        height: "height",
+        width: "width",
+        spacing: "margin, padding",
+        opacity: "opacity",
+        shadow: "box-shadow",
+        transform: "transform",
+        translate: "translateY",
       },
     },
   },
