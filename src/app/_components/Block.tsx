@@ -13,12 +13,12 @@ export const hexaMap: Record<number, string> = {
 };
 
 interface BlockProps {
-  rangeIndex: number;
   value: number;
+  rangeIndex: number;
 }
 
 export const Block = ({ value, rangeIndex }: BlockProps) => {
-  const [counterState, _] = useCounterState();
+  const [counterState] = useCounterState();
   function computeHexaDisplay(value: number): string {
     let returnValue: string | undefined;
     if (value < 10) {
@@ -30,17 +30,15 @@ export const Block = ({ value, rangeIndex }: BlockProps) => {
   }
 
   return (
-    <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-black/5 shadow-md shadow-black/5 dark:bg-white/5 dark:shadow-white/5 lg:h-28 lg:w-28">
-      <div
-        data-active={value === counterState.currentIndexes[rangeIndex]}
-        className="flex h-16 w-16 items-center justify-center rounded-xl bg-black/5 shadow-md shadow-black/5 data-[active=false]:opacity-20 dark:bg-white/5 dark:shadow-white/5"
-      >
-        <span className="font-mono text-3xl font-normal text-black dark:text-white lg:text-6xl">
-          {counterState.blockType === "hexadecimal"
-            ? computeHexaDisplay(value)
-            : value}
-        </span>
-      </div>
+    <div
+      data-active={value === counterState.currentIndexes[rangeIndex]}
+      className="flex h-16 w-16 items-center justify-center rounded-xl bg-black/5 shadow-md shadow-black/5 data-[active=false]:opacity-20 dark:bg-white/5 dark:shadow-white/5"
+    >
+      <span className="font-mono text-3xl font-normal text-black dark:text-white lg:text-6xl">
+        {counterState.blockType === "hexadecimal"
+          ? computeHexaDisplay(value)
+          : value}
+      </span>
     </div>
   );
 };
