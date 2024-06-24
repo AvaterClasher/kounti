@@ -55,7 +55,7 @@ export const ControlPanel = () => {
     }
     adder: for (let i = 0; i < currentIndexes.length; i++) {
       switch (true) {
-        case currentIndexes[i]! < rangeMax:
+        case currentIndexes[i] < rangeMax:
           currentIndexes[i] += 1;
           break adder;
         case currentIndexes[i] === rangeMax:
@@ -80,7 +80,7 @@ export const ControlPanel = () => {
     }
     subtract: for (let i = 0; i < currentIndexes.length; i++) {
       switch (true) {
-        case currentIndexes[i]! > rangeMin:
+        case currentIndexes[i] > rangeMin:
           currentIndexes[i] -= 1;
           break subtract;
         case currentIndexes[i] === rangeMin:

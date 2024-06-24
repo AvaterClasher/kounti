@@ -3,9 +3,9 @@
 import { useCounterState } from "~/hooks/useCounterState";
 import { RangeRenderer } from "./RangeRenderer";
 
-interface BlockRendererProps {}
+// interface BlockRendererProps {}
 
-export const BlockRenderer = ({}: BlockRendererProps) => {
+export const BlockRenderer = () => {
   const [counterState, _] = useCounterState();
 
   return (

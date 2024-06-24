@@ -15,7 +15,7 @@ export const RangeRenderer = ({ rangeIndex }: RangeRendererProps) => {
       id={`rng-${rangeIndex}`}
       className={`flex flex-col items-center justify-center gap-4`}
       style={{
-        transform: `translateY(-${counterState.currentIndexes[rangeIndex]! * 80}px)`,
+        transform: `translateY(-${counterState.currentIndexes[rangeIndex] * 80}px)`,
       }}
     >
       {counterState.range.map((value, index) => (

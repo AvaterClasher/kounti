@@ -78,7 +78,7 @@ export const CounterStateProvider = ({ children }: { children: ReactNode }) => {
   }
 
   function clearIndexes() {
-    const rangeMin = state.range[0]!;
+    const rangeMin = state.range[0];
     const newIndexes = Array.from<number>({ length: state.blockCount }).fill(
       rangeMin,
     );
